@@ -10,17 +10,6 @@ from tallies import create_tallies
 from settings import create_settings
 from plot import plot
 
-
-# ==================================================
-# OpenMC cross-sections
-# ==================================================
-
-os.environ["OPENMC_CROSS_SECTIONS"] = (
-    "/home/james_mccusker/nuclear_data/"
-    "endfb-viii.0-hdf5/cross_sections.xml"
-)
-
-
 # ==================================================
 # Model parameters
 # ==================================================
