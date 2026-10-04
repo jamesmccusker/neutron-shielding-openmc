@@ -71,9 +71,9 @@ The ouput will tell the user the neutron flux past the shielded material combina
 
 Example ouput of attenuation analysis mode 1:
 
-![Neutron flux vs shield thickness](figures/flux_vs_thickness.png)
+![Neutron flux vs shield thickness](flux_vs_thickness.png)
 
-![Neutron transmission vs shield thickness](figures/transmission_vs_thickness.png)
+![Neutron transmission vs shield thickness](transmission_vs_thickness.png)
 
 The transmission plot uses a logarithmic vertical axis to show the attenuation over a wider range of shield thicknesses.
 
