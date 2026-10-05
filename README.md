@@ -49,16 +49,14 @@ For each tickness, the neutron flux and statistical uncertainty are recorded.
 
 Transmission is calculated relative to teh zero shielding case:
 $$
-\[
 T(x) = \frac{\phi(x)}{\phi(0)}
-\]
 $$
 where:
-$$
+
 - \(T(x)\) is the transmission through a shield of thickness \(x\)
 - \(\phi(x)\) is the neutron flux with shielding
 - \(\phi(0)\) is the neutron flux with no shielding
-$$
+
 ### Multilayered Shielding (Analysis mode 2)
 
 This analysis mode allows materials to be combined into a layered shield.
