@@ -14,7 +14,8 @@ The model file allows users to:
 
 ## Model Description
 
-                         Shield
+             
+```text
               ┌────────────────────────┐
               │                        │
  Neutron      │                        │
@@ -22,7 +23,7 @@ The model file allows users to:
               │                        │
               │                        │
               └────────────────────────┘
-
+```
               
 The model is simplistic, it contains a neutron source at fixed energy, an air region, a shielded region and a detector region.
 The shielding region can contain one or more materials, allowing different shielding configurations to be investigated.
