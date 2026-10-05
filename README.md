@@ -14,6 +14,16 @@ The model file allows users to:
 
 ## Model Description
 
+                         Shield
+              ┌────────────────────────┐
+              │                        │
+ Neutron      │                        │
+ source  ────►│       Concrete         │──────► Detector
+              │                        │
+              │                        │
+              └────────────────────────┘
+
+              
 The model is simplistic, it contains a neutron source at fixed energy, an air region, a shielded region and a detector region.
 The shielding region can contain one or more materials, allowing different shielding configurations to be investigated.
 The neutron flux is calculated at the detector region using an OpenMC cell tally.
