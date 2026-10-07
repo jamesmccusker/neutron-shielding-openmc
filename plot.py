@@ -43,7 +43,7 @@ def plot():
     )
 
     plt.xlabel("Shield thickness / cm")
-    plt.ylabel("Neutron flux / neutron-cm/s")
+    plt.ylabel("Cell-integrated neutron flux (cm/source particle)")
     plt.title("Neutron flux vs shield thickness")
     plt.grid()
 
