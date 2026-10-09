@@ -4,6 +4,26 @@ A Python-based Monte Carlo neutron transport project using [OpenMC](https://open
 
 The project was developed as a practical exercise in radiation transport modelling, simulation automation and analysis of Monte Carlo results. It is intended as a simplified computational study, **not** a validated shielding design or nuclear safety assessment.
 
+## Machine Learning Surrogate Model
+
+This project has been extended to investigate the use of machine
+learning to predict neutron attenuation through concrete shielding
+using OpenMC-generated simulation data.
+
+Three regression models were evaluated:
+- Log-linear regression
+- Cubic polynomial regression
+- Random forest regression
+
+Using leave-one-interior-thickness-out cross-validation, cubic
+polynomial regression achieved a mean absolute percentage error
+of 3.38% across 14 withheld shielding configurations.
+
+The extension demonstrates Monte Carlo simulation, Python automation,
+machine learning, model validation and statistical uncertainty analysis.
+
+**[View the Machine Learning Surrogate Project](ml_surrogate/README.md)**
+
 ## Project overview
 
 The model represents a monoenergetic neutron source, an air region, a shielding region and a detector region. The shielding region can contain either one material or multiple layers. Neutron flux is estimated using an OpenMC tally applied to the detector cell.
