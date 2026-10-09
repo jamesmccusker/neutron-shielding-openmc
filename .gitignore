@@ -1,0 +1,9 @@
+# OpenMC simulation outputs
+attenuation_*cm/
+statepoint.*.h5
+summary.h5
+tallies.out
+
+# Python cache
+__pycache__/
+*.pyc
