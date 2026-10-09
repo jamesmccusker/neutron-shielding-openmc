@@ -1,3 +1,5 @@
+import openmc
+
 def geometry(
     air,
     materials,

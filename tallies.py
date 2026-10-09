@@ -1,3 +1,5 @@
+import openmc
+
 def create_tallies(detector_cell):
 
         tally = openmc.Tally(name="Neutron flux")

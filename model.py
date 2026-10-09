@@ -1,7 +1,8 @@
 import openmc
 import csv
-import os
 import shutil
+import argparse
+import math
 from pathlib import Path
 
 from materials import create_materials
@@ -10,6 +11,48 @@ from tallies import create_tallies
 from settings import create_settings
 from plot import plot
 
+# Command-line arguments for automated simulations
+parser = argparse.ArgumentParser(
+    description="OpenMC neutron shielding model"
+)
+
+parser.add_argument(
+    "--material",
+    type=str,
+    default=None
+)
+
+parser.add_argument(
+    "--max-thickness",
+    type=float,
+    default=None
+)
+
+parser.add_argument(
+    "--step",
+    type=float,
+    default=None
+)
+
+args = parser.parse_args()
+
+automated_mode = args.material is not None
+
+if automated_mode:
+    if args.max_thickness is None or args.step is None:
+        parser.error(
+            "Automated mode requires --max-thickness and --step"
+        )
+
+    if not (
+        math.isfinite(args.max_thickness)
+        and math.isfinite(args.step)
+        and args.max_thickness > 0
+        and args.step > 0
+    ):
+        parser.error(
+            "Thickness values must be finite and positive"
+        )
 # ==================================================
 # Model parameters
 # ==================================================
@@ -64,20 +107,22 @@ for name in shielding_materials:
 # Select analysis
 # ==================================================
 
-print("\nSelect analysis:")
-print("1 - Material attenuation")
-print("2 - Multilayer shielding")
+if automated_mode:
+    analysis_type = "1"
 
-while True:
+else:
+    print("\nSelect analysis:")
+    print("1 - Material attenuation")
+    print("2 - Multilayer shielding")
 
-    analysis_type = input(
-        "\nEnter analysis number: "
-    ).strip()
+    while True:
 
-    if analysis_type in ["1", "2"]:
-        break
+        analysis_type = input("\nEnter analysis number: ").strip()
 
-    print("Invalid selection. Please enter 1 or 2.")
+        if analysis_type in ["1", "2"]:
+            break
+
+        print("Invalid selection. Please enter 1 or 2.")
 
 
 # ==================================================
@@ -93,19 +138,20 @@ if analysis_type == "1":
     # Select material
     # --------------------------------------------------
 
-    while True:
 
-        material_name = input(
-            "\nSelect material: "
-        ).strip().lower()
+    if automated_mode:
+        material_name = args.material.strip().lower()
+        if material_name not in shielding_materials:
+            parser.error(f"Unknown material: {material_name}")
 
-        if material_name in shielding_materials:
-            break
+    else:
+        while True:
 
-        print(
-            "Invalid material. Please select one of the "
-            "available shielding materials."
-        )
+            material_name = input("\nSelect material: ").strip().lower()
+
+            if material_name in shielding_materials:
+                break
+            print("Invalid material. Please select one of the available shielding materials.")
 
     selected_material = materials[material_name]
 
@@ -118,58 +164,62 @@ if analysis_type == "1":
     # --------------------------------------------------
     # Select maximum thickness
     # --------------------------------------------------
+    if automated_mode:
+        maximum_thickness = args.max_thickness
+        thickness_step = args.step
+    else:
 
-    while True:
+        while True:
 
-        try:
+            try:
 
-            maximum_thickness = float(
-                input(
-                    "What is the maximum thickness (cm)? "
+                maximum_thickness = float(
+                    input(
+                        "What is the maximum thickness (cm)? "
+                    )
                 )
-            )
 
-            if maximum_thickness > 0:
-                break
+                if maximum_thickness > 0:
+                    break
 
-            print(
-                "Maximum thickness must be greater than 0 cm."
-            )
+                print(
+                    "Maximum thickness must be greater than 0 cm."
+                )
 
-        except ValueError:
+            except ValueError:
 
-            print(
-                "Please enter a valid number."
-            )
+                print(
+                    "Please enter a valid number."
+                )
 
 
     # --------------------------------------------------
     # Select thickness step
     # --------------------------------------------------
 
-    while True:
+        while True:
 
-        try:
+            try:
 
-            thickness_step = float(
-                input(
-                    "What would you like the thickness "
-                    "step to be (cm)? "
+                thickness_step = float(
+                    input(
+                        "What would you like the thickness "
+                        "step to be (cm)? "
+                    )
                 )
-            )
 
-            if thickness_step > 0:
-                break
+                if thickness_step > 0:
+                    break
 
-            print(
-                "Thickness step must be greater than 0 cm."
-            )
+                print(
+                    "Thickness step must be greater than 0 cm."
+                )
 
-        except ValueError:
+            except ValueError:
 
-            print(
-                "Please enter a valid number."
-            )
+                print(
+                    "Please enter a valid number."
+                )
 
 
     # --------------------------------------------------
@@ -385,49 +435,35 @@ if analysis_type == "1":
 
 
             # --------------------------------------------------
-            # Calculate transmission for each result
+            # Calculate transmission and write each result
             # --------------------------------------------------
+
+            if reference_flux <= 0:
+                raise ValueError("Reference flux must be greater than zero.")
 
             for thickness, flux, uncertainty in results:
 
-                transmission = (
-                    flux / reference_flux
-                )
+                if thickness == 0:
+                    # The reference divided by itself is exactly one.
+                    transmission = 1.0
+                    transmission_uncertainty = 0.0
 
-
-                # Propagate uncertainty in the ratio
-                transmission_uncertainty = (
-                    transmission
-                    * (
-                        (
-                            uncertainty
-                            / flux
-                        ) ** 2
-                        +
-                        (
-                            reference_uncertainty
-                            / reference_flux
-                        ) ** 2
+                elif flux > 0:
+                    transmission = flux / reference_flux
+                    transmission_uncertainty = transmission * (
+                        (uncertainty / flux) ** 2
+                        + (reference_uncertainty / reference_flux) ** 2
                     ) ** 0.5
-                )
 
-
-                # --------------------------------------------------
-                # Print transmission
-                # --------------------------------------------------
+                else:
+                    transmission = 0.0
+                    transmission_uncertainty = uncertainty / reference_flux
 
                 print(
                     f"{thickness:.1f} cm: "
-                    f"Transmission = "
-                    f"{transmission:.6g} "
-                    f"+/- "
-                    f"{transmission_uncertainty:.3g}"
+                    f"Transmission = {transmission:.6g} "
+                    f"+/- {transmission_uncertainty:.3g}"
                 )
-
-
-                # --------------------------------------------------
-                # Write result to CSV
-                # --------------------------------------------------
 
                 writer.writerow([
                     selected_material.name,
@@ -452,7 +488,8 @@ if analysis_type == "1":
         # Plot results
         # --------------------------------------------------
 
-        plot()
+        if not automated_mode:
+            plot()
 
 
     else:
