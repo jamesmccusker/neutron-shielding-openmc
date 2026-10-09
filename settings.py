@@ -1,3 +1,4 @@
+import openmc
 
 def create_settings(source_distance,shield_height,source_energy,particles,batches):
 
